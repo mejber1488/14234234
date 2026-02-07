@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Имя процесса
-PROCESS_NAME="b32q6f.bin"
+PROCESS_NAME="gbot"
 # Путь к исполняемому файлу
-BINARY_PATH="./b32q6f.bin"
+BINARY_PATH="./gbot"
 # Лог файл
 LOG_FILE="/dev/null"
 # Интервал проверки (в секундах)
-CHECK_INTERVAL=60
+CHECK_INTERVAL=25
 
 # Функция проверки наличия процесса
 check_process() {
